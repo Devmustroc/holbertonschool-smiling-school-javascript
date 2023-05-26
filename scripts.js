@@ -67,79 +67,6 @@ $(document).ready(function() {
             });
         });
     }
-    function createCard(cardData) {
-        let starState = "";
-        let starString = "";
-        let star;
-        for (let i = 1; i <= 5; i++) {
-            if (i <= cardData.star) {
-                starState = "images/star_on.png";
-            } else {
-                starState = "images/star_off.png";
-            }
-
-            star = `<img src="${starState}" alt="star on" width="15px" />`;
-            starString += i == 1 ? star : "\n" + star;
-        }
-
-        let card = `
-    <div class="card">
-      <img
-        src="${cardData.thumb_url}"
-        class="card-img-top"
-        alt="Video thumbnail"
-      />
-      <div class="card-img-overlay text-center">
-        <img
-          src="images/play.png"
-          alt="Play"
-          width="64px"
-          class="align-self-center play-overlay"
-        />
-      </div>
-      <div class="card-body">
-        <h5 class="card-title font-weight-bold">${cardData.title}</h5>
-        <p class="card-text text-muted">
-            ${cardData["sub-title"]}
-        </p>
-        <div class="creator d-flex align-items-center">
-          <img
-            src="${cardData.author_pic_url}"
-            alt="Creator of Video"
-            width="30px"
-            class="rounded-circle"
-          />
-          <h6 class="pl-3 m-0 main-color">${cardData.author}</h6>
-        </div>
-        <div class="info pt-3 d-flex justify-content-between">
-          <div class="rating">
-            ${starString}
-          </div>
-          <span class="main-color">${cardData.duration}</span>
-        </div>
-      </div>
-    </div>
-    `;
-
-        return card;
-    }
-    function displayPopular(data) {
-        let classItem = "";
-        for (let i in data) {
-            classItem = i === 0 ? "carousel-item active" : "carousel-item";
-            let card = createCard(data[i]);
-            let $carouselItem = $(`
-      <div class="${classItem}">
-        <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
-          ${card}
-          </div>
-      </div>
-          `);
-            $("#popular-items").append($carouselItem);
-        }
-
-        slider("popular");
-    }
 
     function requestData(url, callback, id, data ={}) {
         displayLoader(true);
@@ -157,6 +84,7 @@ $(document).ready(function() {
             },
         });
     }
+
 
 
     requestData("https://smileschool-api.hbtn.info/quotes", displayQuotes, "#carousel-items");
