@@ -192,17 +192,26 @@ $(document).ready(function() {
             attribute: "latest-items",
         }
     ];
+    let requestsPricing = [
+        {
+            url: "https://smileschool-api.hbtn.info/quotes",
+            operation: displayQuotes,
+            attribute: "carousel-items",
+        }
+    ]
     let $homePage = $("#homepage");
-    let $popularPage = $('#popular');
-    let requestsCourses;
+    let $pricing = $("#pricing");
+    let requestOperation;
 
     if (Object.keys($homePage).length) {
-        requestsCourses = requestsHomepage;
-    } else if (Object.key($popularPage).length) {
-        requestsCourses = requestsHomepage;
+        requestOperation = requestsHomepage;
+    } else if (Object.key($pricing).length) {
+        requestOperation = requestsPricing;
+    } else  {
+        requestOperation = requestsHomepage;
     }
 
-    for (let i of requestsCourses) {
+    for (let i of requestOperation) {
         requestData(i.url, i.operation, i.id);
     }
 });
