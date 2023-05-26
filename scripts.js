@@ -108,6 +108,24 @@ $(document).ready(function() {
 
         slider("popular");
     }
+    function displayLatestVideo(dataVideo) {
+        let classItem = "";
+        for (let i in dataVideo) {
+            /*console.log(dataDisplay[i]);*/
+            classItem = i === 0 ? "carousel-item active" : "carousel-item"; // if
+            console.log(classItem);
+            let card = createCard(dataVideo[i]);
+            let $carouselItem = $(`
+              <div class="${classItem}">
+                    <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">${card}</div>
+              </div>
+          `);
+            $("#latest-videos-items").append($carouselItem);
+        }
+
+        slider("popular");
+    }
+
     function slider() {
         $(".carousel").each(function() {
             let $carousel = $(this);
@@ -167,16 +185,23 @@ $(document).ready(function() {
             url: "https://smileschool-api.hbtn.info/popular-tutorials",
             operation: displayPopular,
             attribute: "popular-items",
+        },
+        {
+            url: "https://smileschool-api.hbtn.info/latest-videos",
+            operation: displayLatestVideo,
+            attribute: "latest-items",
         }
     ];
     let $homePage = $("#homepage");
+    let $popularPage = $('#popular');
     let requestsCourses;
 
     if (Object.keys($homePage).length) {
         requestsCourses = requestsHomepage;
-    } else {
-        alert("No homepage");
+    } else if (Object.key($popularPage).length) {
+        requestsCourses = requestsHomepage;
     }
+
     for (let i of requestsCourses) {
         requestData(i.url, i.operation, i.id);
     }
