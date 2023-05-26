@@ -67,24 +67,21 @@ $(document).ready(function() {
             });
         });
     }
-    /**
-     * Creates the string equivalent of a card element in bootstrap
-     * @cardData  {object} An object containing data for creating the card
-     * @return {string}  string equivalent of a card element in bootstrap
-     */
-    function creatCard(cardData) {
-        let statStars = "";
-        let stringStar = "";
+    function createCard(cardData) {
+        let starState = "";
+        let starString = "";
         let star;
-        for (let i = 0; i < 5; i++) {
-            if (i < cardData.star) {
-                statStars = "./images/star_on.png";
+        for (let i = 1; i <= 5; i++) {
+            if (i <= cardData.star) {
+                starState = "images/star_on.png";
             } else {
-                statStars = "./images/star_off.png";
+                starState = "images/star_off.png";
             }
-            star = `<img src="${statStars}" alt="star on" width="15px"/>`;
-            stringStar += i === 0 ? star : "\n" + star;
+
+            star = `<img src="${starState}" alt="star on" width="15px" />`;
+            starString += i == 1 ? star : "\n" + star;
         }
+
         let card = `
     <div class="card">
       <img
@@ -116,30 +113,32 @@ $(document).ready(function() {
         </div>
         <div class="info pt-3 d-flex justify-content-between">
           <div class="rating">
-            ${stringStar}
+            ${starString}
           </div>
           <span class="main-color">${cardData.duration}</span>
         </div>
       </div>
     </div>
     `;
+
         return card;
     }
-    function displayPopularTutorials(data) {
+    function displayPopular(data) {
         let classItem = "";
         for (let i in data) {
-            classItem = i === "0" ? "carousel-item active" : "carousel-item";
-            let card = creatCard(data[i]);
+            classItem = i === 0 ? "carousel-item active" : "carousel-item";
+            let card = createCard(data[i]);
             let $carouselItem = $(`
-                <div class="${classItem}">
-                <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
-                ${card}
-                </div>
-                 </div>
+      <div class="${classItem}">
+        <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">
+          ${card}
+          </div>
+      </div>
           `);
-            $("#popular-tutorials").append($carouselItem);
+            $("#popular-items").append($carouselItem);
         }
-        slider();
+
+        slider("popular");
     }
 
     function requestData(url, callback, id, data ={}) {
@@ -159,6 +158,7 @@ $(document).ready(function() {
         });
     }
 
+
     requestData("https://smileschool-api.hbtn.info/quotes", displayQuotes, "#carousel-items");
-    requestData("https://smileschool-api.hbtn.info/popular-tutorials", displayPopularTutorials, "#popular-tutorials");
+    requestData("https://smileschool-api.hbtn.info/popular-tutorials", displayPopular, "#popular-tutorials");
 });
