@@ -35,16 +35,96 @@ $(document).ready(function() {
             carouselItems.append($carouselItem);
         }
     }
-    function creatCard() {
-
-    }
-
     function slider() {
-        $(".carousel").carousel({
-            interval: 5000,
+        $(".carousel").each(function() {
+            let $carousel = $(this);
+            $carousel.find(".carousel-item").each(function(index) {
+                $(this).attr("data-id", index);
+            });
+            $carousel.find(".carousel-inner").each(function() {
+                $(this).children(".carousel-item").first().addClass("active");
+            });
+            $carousel.find(".carousel-item").each(function() {
+                let next = $(this).next();
+                if (!next.length) {
+                    next = $(this).siblings(":first");
+                }
+                next.children(":first-child").clone().appendTo($(this));
+
+                if (next.next().length > 0) {
+                    next
+                        .next()
+                        .children(":first-child")
+                        .clone()
+                        .appendTo($(this));
+                } else {
+                    $(this)
+                        .siblings(":first")
+                        .children(":first-child")
+                        .clone()
+                        .appendTo($(this));
+                }
+            });
         });
     }
-
+    /**
+     * Creates the string equivalent of a card element in bootstrap
+     * @cardData  {object} An object containing data for creating the card
+     * @return {string}  string equivalent of a card element in bootstrap
+     */
+    function creatCard(cardData) {
+        let statStars = "";
+        let stringStar = "";
+        let star;
+        for (let i = 0; i < 5; i++) {
+            if (i < cardData.star) {
+                statStars = "./images/star_on.png";
+            } else {
+                statStars = "./images/star_off.png";
+            }
+            star = `<img src="${statStars}" alt="star on" width="15px"/>`;
+            stringStar += i === 0 ? star : "\n" + star;
+        }
+        let card = `
+    <div class="card">
+      <img
+        src="${cardData.thumb_url}"
+        class="card-img-top"
+        alt="Video thumbnail"
+      />
+      <div class="card-img-overlay text-center">
+        <img
+          src="images/play.png"
+          alt="Play"
+          width="64px"
+          class="align-self-center play-overlay"
+        />
+      </div>
+      <div class="card-body">
+        <h5 class="card-title font-weight-bold">${cardData.title}</h5>
+        <p class="card-text text-muted">
+            ${cardData["sub-title"]}
+        </p>
+        <div class="creator d-flex align-items-center">
+          <img
+            src="${cardData.author_pic_url}"
+            alt="Creator of Video"
+            width="30px"
+            class="rounded-circle"
+          />
+          <h6 class="pl-3 m-0 main-color">${cardData.author}</h6>
+        </div>
+        <div class="info pt-3 d-flex justify-content-between">
+          <div class="rating">
+            ${stringStar}
+          </div>
+          <span class="main-color">${cardData.duration}</span>
+        </div>
+      </div>
+    </div>
+    `;
+        return card;
+    }
     function displayPopularTutorials(data) {
         let classItem = "";
         for (let i in data) {
@@ -78,20 +158,7 @@ $(document).ready(function() {
             },
         });
     }
-    let requestsHome = [
-        {
-            url: "https://smileschool-api.hbtn.info/quotes",
-            callback: displayQuotes,
-            id: "#carousel-items",
-        },
-        {
-            url: "https://smileschool-api.hbtn.info/popular-tutorials",
-            callback: displayPopularTutorials,
-            id: "#popular-tutorials",
-        }
-    ]
 
-    let url = "https://smileschool-api.hbtn.info/quotes";
-
-    requestData(url, displayQuotes);
+    requestData("https://smileschool-api.hbtn.info/quotes", displayQuotes, "#carousel-items");
+    requestData("https://smileschool-api.hbtn.info/popular-tutorials", displayPopularTutorials, "#popular-tutorials");
 });
