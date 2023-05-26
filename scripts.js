@@ -35,6 +35,79 @@ $(document).ready(function() {
             carouselItems.append($carouselItem);
         }
     }
+    function createCard(cardData) {
+        let starState = "";
+        let starString = "";
+        let star;
+        for (let i = 1; i <= 5; i++) {
+            if (i <= cardData.star) {
+                starState = "images/star_on.png";
+            } else {
+                starState = "images/star_off.png";
+            }
+
+            star = `<img src="${starState}" alt="star on" width="15px" />`;
+            starString += i == 1 ? star : "\n" + star;
+        }
+
+        let card = `
+            <div class="card">
+              <img
+                src="${cardData.thumb_url}"
+                class="card-img-top"
+                alt="Video thumbnail"
+              />
+              <div class="card-img-overlay text-center">
+                <img
+                  src="images/play.png"
+                  alt="Play"
+                  width="50px"
+                  class="align-self-center play-overlay"
+                />
+              </div>
+              <div class="card-body">
+                <h5 class="card-title font-weight-bold">${cardData.title}</h5>
+                <p class="card-text text-muted">
+                    ${cardData["sub-title"]}
+                </p>
+                <div class="creator d-flex align-items-center">
+                  <img
+                    src="${cardData.author_pic_url}"
+                    alt="Creator of Video"
+                    width="25px"
+                    class="rounded-circle"
+                  />
+                  <h6 class="pl-2 m-0 main-color">${cardData.author}</h6>
+                </div>
+                <div class="info pt-4 d-flex justify-content-between">
+                  <div class="rating">
+                    ${starString}
+                  </div>
+                  <span class="main-color">${cardData.duration}</span>
+                </div>
+              </div>
+            </div>
+            `;
+
+        return card;
+    }
+    function displayPopular(dataDisplay) {
+        let classItem = "";
+        for (let i in dataDisplay) {
+            /*console.log(dataDisplay[i]);*/
+            classItem = i === 0 ? "carousel-item active" : "carousel-item"; // if
+            console.log(classItem);
+            let card = createCard(dataDisplay[i]);
+            let $carouselItem = $(`
+              <div class="${classItem}">
+                    <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-center">${card}</div>
+              </div>
+          `);
+            $("#popular-items").append($carouselItem);
+        }
+
+        slider("popular");
+    }
     function slider() {
         $(".carousel").each(function() {
             let $carousel = $(this);
@@ -68,7 +141,7 @@ $(document).ready(function() {
         });
     }
 
-    function requestData(url, callback, id, data ={}) {
+    function requestData(url, operation, id, data = {}) {
         displayLoader(true);
         $.ajax({
             url: url,
@@ -77,16 +150,34 @@ $(document).ready(function() {
             headers: { "Content-Type": "application/json" },
             success: function(response) {
                 displayLoader(false, id);
-                callback(response);
+                operation(response);
             },
             error: function(error) {
                 alert(`Error Getting Data from ${url}`);
             },
         });
     }
+    let requestsHomepage = [
+        {
+            url: "https://smileschool-api.hbtn.info/quotes",
+            operation: displayQuotes,
+            attribute: "carousel-items",
+        },
+        {
+            url: "https://smileschool-api.hbtn.info/popular-tutorials",
+            operation: displayPopular,
+            attribute: "popular-items",
+        }
+    ];
+    let $homePage = $("#homepage");
+    let requestsCourses;
 
-
-
-    requestData("https://smileschool-api.hbtn.info/quotes", displayQuotes, "#carousel-items");
-    requestData("https://smileschool-api.hbtn.info/popular-tutorials", displayPopular, "#popular-tutorials");
+    if (Object.keys($homePage).length) {
+        requestsCourses = requestsHomepage;
+    } else {
+        alert("No homepage");
+    }
+    for (let i of requestsCourses) {
+        requestData(i.url, i.operation, i.id);
+    }
 });
