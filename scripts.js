@@ -47,7 +47,7 @@ $(document).ready(function() {
             }
 
             star = `<img src="${starState}" alt="star on" width="15px" />`;
-            starString += i == 1 ? star : "\n" + star;
+            starString += i === 1 ? star : "\n" + star;
         }
 
         let card = `
@@ -126,6 +126,97 @@ $(document).ready(function() {
         slider("popular");
     }
 
+    function searchObject() {
+        let searchObj = {
+            q: $("#keywords-input").val(),
+            topic: $("#topic").text().toLowerCase(),
+            sort: $("#sort-by").text().toLowerCase().replace(" ", "_"),
+        };
+
+        return searchObj;
+    }
+    function searchRequest() {
+        let searchObj = searchObject();
+        let $results = $("#results-items");
+        $results.empty();
+        $("#results-count").text("");
+
+        for (let r of requestsCourses) {
+            requestData(r.url, displayResults, r.id, searchObj);
+        }
+    }
+    function parseTitle(title) {
+        if (title) {
+            title = title.charAt(0).toUpperCase() + title.slice(1).replace("_", " ");
+        }
+        return title;
+    }
+    function displayDropdown(list, $DOMElement, $titleElement) {
+        if (list.length) {
+            for (let l of list) {
+                let s = parseTitle(l);
+                let $item = $(`
+          <a class="dropdown-item" href="#">${s}</a>
+        `);
+                $item.click(function () {
+                    $titleElement.text(s);
+                    searchRequest();
+                });
+                $DOMElement.append($item);
+            }
+        }
+    }
+    function displaySearch(data) {
+        let title;
+        let topics = data.topics;
+        let sorts = data.sorts;
+
+        let $TopicDropdown = $("#topic-dropdown");
+        let $TopicTitle = $("#topic");
+        title = parseTitle(data.topic);
+        $TopicTitle.text(title);
+        displayDropdown(topics, $TopicDropdown, $TopicTitle);
+
+        let $SortDropdown = $("#sort-dropdown");
+        let $SortTitle = $("#sort-by");
+        title = parseTitle(data.sort);
+        $SortTitle.text(title);
+        displayDropdown(sorts, $SortDropdown, $SortTitle);
+
+        let $KeywordsInput = $("#keywords-input");
+
+        $KeywordsInput.val(data.q);
+
+        $KeywordsInput.change(function () {
+            searchRequest();
+        });
+    }
+    function displayResults(data) {
+        console.log(data);
+        let courses = data.courses;
+        if (!courses) return;
+        let $results = $("#results-items");
+
+        let count = Object.keys(courses).length;
+        $("#results-count").text(`${count} videos`);
+
+        if (Object.keys(courses).length) {
+            for (let c of courses) {
+                let card = createCard(c);
+                let $resultItem = $(`
+      <div class="col-12 col-sm-4 col-lg-3 d-flex justify-content-center">
+        ${card}
+      </div>
+     `);
+                $results.append($resultItem);
+            }
+        }
+    }
+    function displaySearchAndResults(data) {
+        displayResults(data);
+        displaySearch(data);
+    }
+
     function slider() {
         $(".carousel").each(function() {
             let $carousel = $(this);
@@ -191,7 +282,7 @@ $(document).ready(function() {
             operation: displayLatestVideo,
             attribute: "latest-items",
         }
-    ];
+    ]
     let requestsPricing = [
         {
             url: "https://smileschool-api.hbtn.info/quotes",
@@ -199,17 +290,22 @@ $(document).ready(function() {
             attribute: "carousel-items",
         }
     ]
-    let $homePage = $("#homepage");
+    let requestsCourses = [
+        {
+            url: "https://smileschool-api.hbtn.info/courses",
+            operation: displaySearchAndResults,
+            attribute: "results-items",
+        }
+    ]
+    let $homepage = $("#homepage");
     let $pricing = $("#pricing");
+    let $courses = $("#courses");
     let requestOperation;
 
-    if (Object.keys($homePage).length) {
-        requestOperation = requestsHomepage;
-    } else if (Object.key($pricing).length) {
-        requestOperation = requestsPricing;
-    } else  {
-        requestOperation = requestsHomepage;
-    }
+    if (Object.keys($homepage).length) requestOperation = requestsHomepage;
+    else if (Object.keys($pricing).length) requestOperation = requestsPricing;
+    else if (Object.keys($courses).length) requestOperation = requestsCourses;
+
 
     for (let i of requestOperation) {
         requestData(i.url, i.operation, i.id);
